@@ -28,8 +28,7 @@ setup(
   license='GPLv2+',
   author='Cyrille Pontvieux',
   author_email='jrd@salixos.org',
-  packages=find_packages(),
-  py_modules=['libsalt'],
+  packages=find_packages(exclude = ['tests']),
   include_package_data=True,
   classifiers=[ # https://pypi.python.org/pypi?%3Aaction=list_classifiers
     'Development Status :: 4 - Beta',
