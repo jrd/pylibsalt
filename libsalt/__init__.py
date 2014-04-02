@@ -9,6 +9,7 @@ from __future__ import print_function, unicode_literals, absolute_import
 
 __copyright__ = 'Copyright 2011-2014, Salix OS'
 __license__ = 'GPL2+'
+__version__ = '0.1.0'
 from .chroot import *
 from .disk import *
 from .execute import *
