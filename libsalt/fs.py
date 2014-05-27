@@ -17,8 +17,8 @@ __license__ = 'GPL2+'
 from .execute import *
 from .freesize import getSizes
 import os
-import re
 from stat import *
+
 
 def getFsType(partitionDevice):
   """
@@ -36,22 +36,23 @@ def getFsType(partitionDevice):
     path = False
   if path:
     try:
-      fstype = execGetOutput(['/sbin/blkid', '-s', 'TYPE', '-o', 'value', path], shell = False)
+      fstype = execGetOutput(['/sbin/blkid', '-s', 'TYPE', '-o', 'value', path], shell=False)
       if fstype:
         fstype = fstype[0]
       else:
         fstype = False
-    except subprocess.CalledProcessError as e:
+    except subprocess.CalledProcessError:
       fstype = False
     if not fstype:
       # is it a real error or is it an extended partition?
       try:
-        filetype = execGetOutput(['/usr/bin/file', '-s', path], shell = False)
+        filetype = execGetOutput(['/usr/bin/file', '-s', path], shell=False)
         if 'extended partition table' in filetype:
           fstype = 'Extended'
       except subprocess.CalledProcessError:
         pass
   return fstype
+
 
 def getFsLabel(partitionDevice):
   """
@@ -68,14 +69,15 @@ def getFsLabel(partitionDevice):
     path = False
   if path:
     try:
-      label = execGetOutput(['/sbin/blkid', '-s', 'LABEL', '-o', 'value', path], shell = False)
+      label = execGetOutput(['/sbin/blkid', '-s', 'LABEL', '-o', 'value', path], shell=False)
       if label:
         label = label[0]
       else:
         label = ''
-    except subprocess.CalledProcessError as e:
+    except subprocess.CalledProcessError:
       label = False
   return label
+
 
 def makeFs(partitionDevice, fsType, label=None, force=False, options=None):
   """
@@ -111,7 +113,8 @@ def makeFs(partitionDevice, fsType, label=None, force=False, options=None):
     return _makeFat(path, fsType == 'fat32', label, options, force)
   elif fsType == 'swap':
     return _makeSwap(path, label, options, force)
-  return None # should not append
+  return None  # should not append
+
 
 def _makeExtFs(path, version, label, options, force):
   """
@@ -121,7 +124,7 @@ def _makeExtFs(path, version, label, options, force):
   if not options:
     options = []
   if label:
-    if len(label) > 16: # max 16 bytes
+    if len(label) > 16:  # max 16 bytes
       label = label[0:15]
     options.append('-L')
     options.append(label)
@@ -129,7 +132,8 @@ def _makeExtFs(path, version, label, options, force):
     options.append('-F')
   cmd.extend(options)
   cmd.append(path)
-  return execCall(cmd, shell = False)
+  return execCall(cmd, shell=False)
+
 
 def _makeXfs(path, label, options, force):
   """
@@ -137,52 +141,55 @@ def _makeXfs(path, label, options, force):
   """
   cmd = ['/sbin/mkfs.xfs']
   if not options:
-    options = ['-f'] # -f is neccessary to have this or you cannot create XFS on a non-empty partition or disk
+    options = ['-f']  # -f is neccessary to have this or you cannot create XFS on a non-empty partition or disk
     if os.path.isfile(path):
       size = os.stat(path).st_size
     else:
       size = getSizes(path)['size']
-    if size > 104857600: # > 100M
-      options.extend(['-l', 'size=64m,lazy-count=1']) # optimizations
+    if size > 104857600:  # > 100M
+      options.extend(['-l', 'size=64m,lazy-count=1'])  # optimizations
   if label:
-    if len(label) > 12: # max 12 chars
+    if len(label) > 12:  # max 12 chars
       label = label[0:11]
     options.append('-L')
     options.append(label)
   cmd.extend(options)
   cmd.append(path)
-  return execCall(cmd, shell = False)
+  return execCall(cmd, shell=False)
+
 
 def _makeReiserfs(path, label, options, force):
   cmd = ['/sbin/mkfs.reiserfs']
   if not options:
     options = []
   if label:
-    if len(label) > 16: # max 16 chars
+    if len(label) > 16:  # max 16 chars
       label = label[0:15]
     options.append('-l')
     options.append(label)
   if force:
     options.append('-f')
-    options.append('-f') # twice for no confirmation
+    options.append('-f')  # twice for no confirmation
   cmd.extend(options)
   cmd.append(path)
-  return execCall(cmd, shell = False)
+  return execCall(cmd, shell=False)
+
 
 def _makeJfs(path, label, options, force):
   cmd = ['/sbin/mkfs.jfs']
   if not options:
-    options = ['-f'] # if not specified, will ask to continue
+    options = ['-f']  # if not specified, will ask to continue
   if label:
-    if len(label) > 16: # max 16 chars
+    if len(label) > 16:  # max 16 chars
       label = label[0:15]
     options.append('-L')
     options.append(label)
   if force:
-    pass # no need to do anything
+    pass  # no need to do anything
   cmd.extend(options)
   cmd.append(path)
-  return execCall(cmd, shell = False)
+  return execCall(cmd, shell=False)
+
 
 def _makeBtrfs(path, label, options, force):
   cmd = ['/sbin/mkfs.btrfs']
@@ -190,19 +197,20 @@ def _makeBtrfs(path, label, options, force):
     options = []
   if label:
     options.append('-L')
-    options.append(label) # no restriction on size
+    options.append(label)  # no restriction on size
   if force:
-    pass # no need to do anything
+    pass  # no need to do anything
   cmd.extend(options)
   cmd.append(path)
-  return execCall(cmd, shell = False)
+  return execCall(cmd, shell=False)
+
 
 def _makeNtfs(path, label, options, force):
   cmd = ['/sbin/mkfs.ntfs']
   if not options:
     options = ['-Q']
   if label:
-    if len(label) > 32: # 32 chars max
+    if len(label) > 32:  # 32 chars max
       label = label[0:31]
     options.append('-L')
     options.append(label)
@@ -210,7 +218,8 @@ def _makeNtfs(path, label, options, force):
     options.append('-F')
   cmd.extend(options)
   cmd.append(path)
-  return execCall(cmd, shell = False)
+  return execCall(cmd, shell=False)
+
 
 def _makeFat(path, is32, label, options, force):
   cmd = ['/sbin/mkfs.vfat']
@@ -223,28 +232,29 @@ def _makeFat(path, is32, label, options, force):
   else:
     options.extend(size)
   if label:
-    if len(label) > 11: # 8+3 bytes max
+    if len(label) > 11:  # 8+3 bytes max
       label = label[0:10]
     options.append('-n')
     options.append(label)
   if force:
-    options.append('-I') # permit to use whole disk
+    options.append('-I')  # permit to use whole disk
   cmd.extend(options)
   cmd.append(path)
-  return execCall(cmd, shell = False)
+  return execCall(cmd, shell=False)
+
 
 def _makeSwap(path, label, options, force):
   cmd = ['/sbin/mkswap']
   if not options:
-    options = ['-f'] # it is neccessary to have this or you cannot create a swap on a non-empty partition or disk
+    options = ['-f']  # it is neccessary to have this or you cannot create a swap on a non-empty partition or disk
   if label:
-    options.append('-L') # I didn't find any restriction in the label size
+    options.append('-L')  # I didn't find any restriction in the label size
     options.append(label)
   if force:
-    pass # nothing to do, writing to a file is always ok
+    pass  # nothing to do, writing to a file is always ok
   cmd.extend(options)
   cmd.append(path)
-  return execCall(cmd, shell = False)
+  return execCall(cmd, shell=False)
 
 # Unit test
 if __name__ == '__main__':
@@ -260,10 +270,10 @@ if __name__ == '__main__':
   for ft in ('ext2', 'ext4', 'xfs', 'reiserfs', 'jfs', 'btrfs', 'ntfs', 'fat16', 'fat32', 'swap'):
     f = '{0}.fs'.format(ft)
     if ft == 'btrfs':
-      size = 300 # btrfs minimum size is 256M
+      size = 300  # btrfs minimum size is 256M
     else:
       size = 50
-    execCall(['dd', 'if=/dev/zero', 'of={0}'.format(f), 'bs=1M', 'count={0:d}'.format(size)], shell = False)
+    execCall(['dd', 'if=/dev/zero', 'of={0}'.format(f), 'bs=1M', 'count={0:d}'.format(size)], shell=False)
     assertEquals(0, makeFs(f, ft, 'test_{0}'.format(ft), True))
     if ft in ('fat16', 'fat32'):
       expectedFt = 'vfat'

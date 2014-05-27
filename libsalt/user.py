@@ -22,13 +22,14 @@ import crypt
 
 _minUIDForRegularUser = 1000
 
-def listRegularSystemUsers(mountPoint = None):
+
+def listRegularSystemUsers(mountPoint=None):
   """
   Returns a sorted list of regular users, i.e. users with id ≥ 1000.
   """
   if mountPoint and not os.path.isdir(mountPoint):
     raise IOError("'{0}' does not exist or is not a directory.".format(mountPoint))
-  if mountPoint == None:
+  if mountPoint is None:
     mountPoint = ''
   ret = []
   for line in open('{0}/etc/passwd'.format(mountPoint), 'rb').read().decode('utf-8').splitlines():
@@ -37,7 +38,8 @@ def listRegularSystemUsers(mountPoint = None):
       ret.append(user)
   return sorted(ret)
 
-def createSystemUser(user, group = '', groups = [
+
+def createSystemUser(user, group='', groups=[
   'audio',
   'cdrom',
   'games',
@@ -47,7 +49,7 @@ def createSystemUser(user, group = '', groups = [
   'plugdev',
   'power',
   'scanner',
-  'video' ], password = None, shell = '/bin/bash', mountPoint = None):
+  'video'], password=None, shell='/bin/bash', mountPoint=None):
   """
   Creates a user 'user' in the system under the 'mountPoint'.
   If the 'group' is specified, and is different than __default__, it will be used.
@@ -82,11 +84,12 @@ def createSystemUser(user, group = '', groups = [
     cmd.append(shell)
   cmd.append(user)
   if not mountPoint or mountPoint == '/':
-    return execCall(cmd, shell = False)
+    return execCall(cmd, shell=False)
   else:
     return execChroot(mountPoint, cmd)
 
-def changePasswordSystemUser(user, password, mountPoint = None):
+
+def changePasswordSystemUser(user, password, mountPoint=None):
   checkRoot()
   if mountPoint and not os.path.isdir(mountPoint):
     raise IOError("'{0}' does not exist or is not a directory.".format(mountPoint))
@@ -96,15 +99,16 @@ def changePasswordSystemUser(user, password, mountPoint = None):
   cryptedPwd = crypt.crypt(password, salt)
   cmd = "echo '{0}:{1}' | /usr/sbin/chpasswd -e".format(user, cryptedPwd)
   if not mountPoint or mountPoint == '/':
-    return execCall(cmd, shell = True)
+    return execCall(cmd, shell=True)
   else:
-    return execChroot(mountPoint, cmd, shell = True)
+    return execChroot(mountPoint, cmd, shell=True)
 
-def checkPasswordSystemUser(user, password, mountPoint = None):
+
+def checkPasswordSystemUser(user, password, mountPoint=None):
   checkRoot()
   if mountPoint and not os.path.isdir(mountPoint):
     raise IOError("'{0}' does not exist or is not a directory.".format(mountPoint))
-  if mountPoint == None:
+  if mountPoint is None:
     mountPoint = ''
   if not password:
     raise Exception('A password must be provided.')
@@ -116,7 +120,8 @@ def checkPasswordSystemUser(user, password, mountPoint = None):
   else:
     return False
 
-def deleteSystemUser(user, mountPoint = None):
+
+def deleteSystemUser(user, mountPoint=None):
   """
   Removes the specified 'user' from the system under the 'mountPoint'.
   """
@@ -125,7 +130,7 @@ def deleteSystemUser(user, mountPoint = None):
     raise IOError("'{0}' does not exist or is not a directory.".format(mountPoint))
   cmd = ['/usr/sbin/userdel', '-r', user]
   if not mountPoint or mountPoint == '/':
-    return execCall(cmd, shell = False)
+    return execCall(cmd, shell=False)
   else:
     return execChroot(mountPoint, cmd)
 
@@ -137,16 +142,16 @@ if __name__ == '__main__':
   print(' '.join(users))
   assertTrue(len(users) > 0)
   testUser = '__test__'
-  assertEquals(0, createSystemUser(testUser, password = 'test'))
+  assertEquals(0, createSystemUser(testUser, password='test'))
   assertTrue(testUser in listRegularSystemUsers())
-  assertTrue(checkPasswordSystemUser(testUser, 'test', mountPoint = '/'))
+  assertTrue(checkPasswordSystemUser(testUser, 'test', mountPoint='/'))
   assertFalse(checkPasswordSystemUser(testUser, 'test2'))
   assertEquals(0, deleteSystemUser(testUser))
   assertFalse(testUser in listRegularSystemUsers())
-  assertEquals(0, createSystemUser(testUser, mountPoint = '/./')) # to be different than '/' and to really force the chroot ;-)
+  assertEquals(0, createSystemUser(testUser, mountPoint='/./'))  # to be different than '/' and to really force the chroot ;-)
   assertTrue(testUser in listRegularSystemUsers())
   assertEquals(0, changePasswordSystemUser(testUser, 'test'))
   assertTrue(checkPasswordSystemUser(testUser, 'test'))
   assertFalse(checkPasswordSystemUser(testUser, 'test3'))
-  assertEquals(0, deleteSystemUser(testUser, mountPoint = '/./'))
+  assertEquals(0, deleteSystemUser(testUser, mountPoint='/./'))
   assertFalse(testUser in listRegularSystemUsers())

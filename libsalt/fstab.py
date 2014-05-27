@@ -13,6 +13,7 @@ __license__ = 'GPL2+'
 from .execute import *
 import os
 
+
 def createFsTab(fstabMountPoint):
   """
   Generates an empty /etc/fstab file
@@ -23,7 +24,8 @@ def createFsTab(fstabMountPoint):
     pass
   open('{0}/etc/fstab'.format(fstabMountPoint), 'w').close()
 
-def addFsTabEntry(fstabMountPoint, device, mountPoint, fsType = None, options = None, dumpFlag = 0, fsckOrder = 0):
+
+def addFsTabEntry(fstabMountPoint, device, mountPoint, fsType=None, options=None, dumpFlag=0, fsckOrder=0):
   """
   Add a line to /etc/fstab
   If fsType is None, then it will be guessed from the device by using blkid
@@ -41,16 +43,16 @@ def addFsTabEntry(fstabMountPoint, device, mountPoint, fsType = None, options = 
       raise IOError('Cannot determine the filesystem of {0}'.format(device))
   if not options:
     defaultOptions = {
-        'def':'defaults',
-        'linux':'defaults,noatime',
-        'ntfs':'umask=000',
-        'fat':'defaults,utf8,umask=0,shortname=mixed'
+        'def': 'defaults',
+        'linux': 'defaults,noatime',
+        'ntfs': 'umask=000',
+        'fat': 'defaults,utf8,umask=0,shortname=mixed'
       }
     defaultOptionsPerFs = {
-        'proc':'def', 'sysfs':'def', 'devpts':'def', 'tmpfs':'def', 'swap':'def',
-        'ext2':'linux', 'ext3':'linux', 'ext4':'linux', 'xfs':'linux', 'reiserfs':'linux', 'btrfs':'linux', 'jfs':'linux',
-        'ntfs':'ntfs',
-        'vfat':'fat'
+        'proc': 'def', 'sysfs': 'def', 'devpts': 'def', 'tmpfs': 'def', 'swap': 'def',
+        'ext2': 'linux', 'ext3': 'linux', 'ext4': 'linux', 'xfs': 'linux', 'reiserfs': 'linux', 'btrfs': 'linux', 'jfs': 'linux',
+        'ntfs': 'ntfs',
+        'vfat': 'fat'
       }
     if fsType in defaultOptionsPerFs:
       options = defaultOptions[defaultOptionsPerFs[fsType]]
@@ -59,8 +61,9 @@ def addFsTabEntry(fstabMountPoint, device, mountPoint, fsType = None, options = 
   if fsType == 'ntfs':
     fsType = 'ntfs-3g'
   fp = open('{0}/etc/fstab'.format(fstabMountPoint), 'a')
-  fp.write('{device:20}{mountPoint:20}{fsType:15}{options:20}{dumpFlag:10}{fsckOrder:2}\n'.format(device = device, mountPoint = mountPoint, fsType = fsType, options = options, dumpFlag = dumpFlag, fsckOrder = fsckOrder))
+  fp.write('{device:20}{mountPoint:20}{fsType:15}{options:20}{dumpFlag:10}{fsckOrder:2}\n'.format(device=device, mountPoint=mountPoint, fsType=fsType, options=options, dumpFlag=dumpFlag, fsckOrder=fsckOrder))
   fp.close()
+
 
 # Unit test
 if __name__ == '__main__':

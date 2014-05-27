@@ -20,13 +20,14 @@ import re
 import fileinput
 import sys
 
-def listAvailableLocales(mountPoint = None):
+
+def listAvailableLocales(mountPoint=None):
   """
   Returns a list of couples (name, title) for available utf8 locales on the system under 'mountPoint'.
   """
   if mountPoint and not os.path.isdir(mountPoint):
     raise IOError("'{0}' does not exist or is not a directory.".format(mountPoint))
-  if mountPoint == None:
+  if mountPoint is None:
     mountPoint = ''
   locales = []
   libdir = 'lib'
@@ -38,6 +39,7 @@ def listAvailableLocales(mountPoint = None):
     locales.append((locale, title))
   return locales
 
+
 def getCurrentLocale():
   """
   Returns the current used locale in the current environment.
@@ -45,13 +47,14 @@ def getCurrentLocale():
   lang, enc = locale.getdefaultlocale()
   return "{0}.{1}".format(lang, re.sub(r'utf-8', r'utf8', enc.lower()))
 
-def getDefaultLocale(mountPoint = None):
+
+def getDefaultLocale(mountPoint=None):
   """
   Returns the default locale as defined in /etc/profile.d/lang.c?sh
   """
   if mountPoint and not os.path.isdir(mountPoint):
     raise IOError("'{0}' does not exist or is not a directory.".format(mountPoint))
-  if mountPoint == None:
+  if mountPoint is None:
     mountPoint = ''
   locale = None
   for f in ('lang.sh', 'lang.csh'):
@@ -65,20 +68,21 @@ def getDefaultLocale(mountPoint = None):
           break
   return locale
 
-def setDefaultLocale(locale, mountPoint = None):
+
+def setDefaultLocale(locale, mountPoint=None):
   """
   Set the default locale in the /etc/profile.d/lang.c?sh file
   """
   checkRoot()
   if mountPoint and not os.path.isdir(mountPoint):
     raise IOError("'{0}' does not exist or is not a directory.".format(mountPoint))
-  if mountPoint == None:
+  if mountPoint is None:
     mountPoint = ''
-  fi = fileinput.FileInput('{0}/etc/profile.d/lang.sh'.format(mountPoint), inplace = 1)
+  fi = fileinput.FileInput('{0}/etc/profile.d/lang.sh'.format(mountPoint), inplace=1)
   for line in fi:
     sys.stdout.write(re.sub(r'^(export LANG=).*', r'\1{0}'.format(locale), line))
   fi.close()
-  fi = fileinput.FileInput('{0}/etc/profile.d/lang.csh'.format(mountPoint), inplace = 1)
+  fi = fileinput.FileInput('{0}/etc/profile.d/lang.csh'.format(mountPoint), inplace=1)
   for line in fi:
     sys.stdout.write(re.sub(r'^(setenv LANG ).*', r'\1{0}'.format(locale), line))
   fi.close()
@@ -91,8 +95,8 @@ if __name__ == '__main__':
   assertTrue(type(locales) == list)
   assertTrue(len(locales) > 0)
   assertTrue('fr_FR' in dict(locales))
-  locale = getCurrentLocale()
-  assertTrue(len(locale) > 3)
+  curlocale = getCurrentLocale()
+  assertTrue(len(curlocale) > 3)
   assertTrue('.utf8' in locale)
   deflocale = getDefaultLocale()
   assertTrue(len(deflocale) > 3)

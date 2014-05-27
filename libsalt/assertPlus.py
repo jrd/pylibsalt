@@ -17,18 +17,28 @@ from __future__ import print_function, unicode_literals, absolute_import
 
 __copyright__ = 'Copyright 2011-2013, Salix OS'
 __license__ = 'GPL2+'
+
+
 def assertTrue(expression):
   """Expect the expression to be true"""
   assert expression, "'{0}' was expected to be true".format(expression)
+
+
 def assertFalse(expression):
   """Expect the expression to be false"""
   assert (not expression), "'{0}' was expected to be false".format(expression)
+
+
 def assertEquals(expected, expression):
   """Expect the expression to be equal to the expected value"""
   assert expression == expected, "'{0}' expected, got '{1}'".format(expected, expression)
+
+
 def assertNotEquals(expected, expression):
   """Expect the expression not to be equal to the expected value"""
   assert expression != expected, "'{0}' not expected, got '{1}'".format(expected, expression)
+
+
 def assertException(exceptionType, function):
   """Expect the function to trigger an exception with exceptionType type"""
   triggered = False
@@ -38,6 +48,8 @@ def assertException(exceptionType, function):
     if isinstance(e, exceptionType):
       triggered = True
   assert triggered, "Exception '{0}' expected with '{1}'".format(exceptionType, function.__doc__)
+
+
 def assertNoException(function):
   """Expect the function not to trigger any exception"""
   triggered = False
@@ -47,7 +59,7 @@ def assertNoException(function):
   except BaseException as e:
     unExpectedE = e
     triggered = True
-  assert (not triggered), "Exception '{0}' was not expected with '{1}'".format(unExpected, function.__doc__)
+  assert (not triggered), "Exception '{0}' was not expected with '{1}'".format(unExpectedE, function.__doc__)
 
 # Unit test
 if __name__ == '__main__':

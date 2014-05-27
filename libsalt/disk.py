@@ -27,9 +27,10 @@ import re
 import os
 from stat import *
 
+
 def getDisks():
   """
-  Returns the disks devices (without /dev/) connected to the computer. 
+  Returns the disks devices (without /dev/) connected to the computer.
   RAID and LVM are not supported yet.
   """
   ret = []
@@ -38,6 +39,7 @@ def getDisks():
       ret.append(re.sub(r'.*(sd.*)', r'\1', l))
   return ret
 
+
 def getDiskInfo(diskDevice):
   """
   Returns a dictionary with the following disk device's info:
@@ -45,7 +47,7 @@ def getDiskInfo(diskDevice):
     - size: size in bytes
     - sizeHuman: human readable size
     - removable: whether it is removable or not
-    - type: either 'msdos' or 'gpt' if parted is installed, or None if not. 
+    - type: either 'msdos' or 'gpt' if parted is installed, or None if not.
   diskDevice should no be prefixed with '/dev/'
   """
   if S_ISBLK(os.stat('/dev/{0}'.format(diskDevice)).st_mode):
@@ -58,14 +60,15 @@ def getDiskInfo(diskDevice):
     except:
       removable = False
     try:
-      partType = execGetOutput("/usr/sbin/parted -m -s /dev/{0} print|sed -n '2p'|cut -d: -f6".format(diskDevice), shell = True)[0]
+      partType = execGetOutput("/usr/sbin/parted -m -s /dev/{0} print|sed -n '2p'|cut -d: -f6".format(diskDevice), shell=True)[0]
     except:
       partType = None
-    return {'model':modelName, 'size':size, 'sizeHuman':sizeHuman, 'removable':removable, 'type':partType}
+    return {'model': modelName, 'size': size, 'sizeHuman': sizeHuman, 'removable': removable, 'type': partType}
   else:
     return None
 
-def getPartitions(diskDevice, skipExtended = True, skipSwap = True):
+
+def getPartitions(diskDevice, skipExtended=True, skipSwap=True):
   """
   Returns partitions matching exclusion filters.
   """
@@ -80,6 +83,7 @@ def getPartitions(diskDevice, skipExtended = True, skipSwap = True):
   else:
     return None
 
+
 def getSwapPartitions():
   """
   Returns partition devices with Linux Swap type.
@@ -89,6 +93,7 @@ def getSwapPartitions():
     parts = [p.replace('/sys/block/{0}/'.format(diskDevice), '') for p in glob.glob('/sys/block/{0}/{0}*'.format(diskDevice))]
     ret.extend([part for part in parts if getFsType(part) == 'swap'])
   return ret
+
 
 def getPartitionInfo(partitionDevice):
   """
@@ -107,11 +112,12 @@ def getPartitionInfo(partitionDevice):
     blockSize = int(open('/sys/block/{0}/queue/logical_block_size'.format(diskDevice), 'r').read().strip())
     size = int(open('/sys/block/{0}/{1}/size'.format(diskDevice, partitionDevice), 'r').read().strip()) * blockSize
     sizeHuman = getHumanSize(size)
+    partId = None
     try:
-      partId = execGetOutput(r"/sbin/sfdisk --dump /dev/sda 2>/dev/null|sed -rn '\,^/dev/{0},{s/.*, Id= *([^,]+),?.*/\1/p}'".format(partitionDevice), shell = True)[0]
+      partId = execGetOutput(r"/sbin/sfdisk --dump /dev/sda 2>/dev/null|sed -rn '\,^/dev/{0},{s/.*, Id= *([^,]+),?.*/\1/p}'".format(partitionDevice), shell=True)[0]
     except:
-      partId = None
-    return {'fstype':fstype, 'label':label, 'size':size, 'sizeHuman':sizeHuman}
+      pass
+    return {'fstype': fstype, 'label': label, 'size': size, 'sizeHuman': sizeHuman, 'partId': partId}
   else:
     return None
 

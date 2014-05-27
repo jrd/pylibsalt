@@ -21,8 +21,10 @@ from stat import *
 
 _tempMountDir = '/mnt/.tempSalt'
 
+
 def getTempMountDir():
   return _tempMountDir
+
 
 def getMountPoint(device):
   """
@@ -30,14 +32,15 @@ def getMountPoint(device):
   """
   mountpoint = None
   path = os.path.abspath(device)
-  for line in execGetOutput(['/bin/mount'], shell = False):
-    p, _, mp, _ = line.split(' ', 3) # 3 splits max, _ is discarded
+  for line in execGetOutput(['/bin/mount'], shell=False):
+    p, _, mp, _ = line.split(' ', 3)  # 3 splits max, _ is discarded
     if os.path.islink(p):
       p = os.path.realpath(p)
     if p == path:
       mountpoint = mp
       break
   return mountpoint
+
 
 def isMounted(device):
   """
@@ -47,6 +50,7 @@ def isMounted(device):
     return True
   else:
     return False
+
 
 def _deleteMountPoint(mountPoint):
   # delete the empty directory
@@ -61,12 +65,13 @@ def _deleteMountPoint(mountPoint):
     except:
       pass
 
-def mountDevice(device, fsType = None, mountPoint = None):
+
+def mountDevice(device, fsType=None, mountPoint=None):
   """
   Mount the 'device' of 'fsType' filesystem under 'mountPoint'.
   If 'mountPoint' is not specified, '{0}/device' will be used.
   Returns False if it fails or the mount point if it succeed.
-  """.format(_tempMountDir) 
+  """.format(_tempMountDir)
   if not fsType:
     fsType = getFsType(re.sub(r'/dev/', '', device))
   if not fsType:
@@ -82,14 +87,15 @@ def mountDevice(device, fsType = None, mountPoint = None):
       os.makedirs(mountPoint)
     except os.error:
       pass
-  ret = execCall(['mount', '-t', fsType, device, mountPoint], shell = False)
+  ret = execCall(['mount', '-t', fsType, device, mountPoint], shell=False)
   if ret != 0 and autoMP:
     _deleteMountPoint(mountPoint)
   else:
     return mountPoint
   return ret == 0
 
-def umountDevice(deviceOrPath, tryLazyUmount = True, deleteMountPoint = True):
+
+def umountDevice(deviceOrPath, tryLazyUmount=True, deleteMountPoint=True):
   """
   Unmount the 'deviceOrPath' which could be a device or a mount point.
   If umount failed, try again with a lazyUmount if 'tryLazyUmount' is True.
@@ -101,9 +107,9 @@ def umountDevice(deviceOrPath, tryLazyUmount = True, deleteMountPoint = True):
   else:
     mountPoint = deviceOrPath
   if mountPoint:
-    ret = execCall(['umount', mountPoint], shell = False)
+    ret = execCall(['umount', mountPoint], shell=False)
     if ret != 0:
-       ret = execCall(['umount', '-l', mountPoint], shell = False)
+       ret = execCall(['umount', '-l', mountPoint], shell=False)
     if ret == 0 and deleteMountPoint:
       _deleteMountPoint(mountPoint)
     return ret == 0
@@ -114,8 +120,8 @@ def umountDevice(deviceOrPath, tryLazyUmount = True, deleteMountPoint = True):
 if __name__ == '__main__':
   from .assertPlus import *
   from .fs import *
-  checkRoot() # need to be root to mount/umount
-  execCall(['dd', 'if=/dev/zero', 'of=ext4.fs', 'bs=1M', 'count=50'], shell = False)
+  checkRoot()  # need to be root to mount/umount
+  execCall(['dd', 'if=/dev/zero', 'of=ext4.fs', 'bs=1M', 'count=50'], shell=False)
   makeFs('ext4.fs', 'ext4', 'test ext4', True)
   assertFalse(isMounted('ext4.fs'))
   assertEquals(0, mountDevice('ext4.fs'))

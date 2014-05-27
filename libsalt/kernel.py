@@ -12,6 +12,7 @@ __copyright__ = 'Copyright 2011-2013, Salix OS'
 __license__ = 'GPL2+'
 import os
 
+
 def hasKernelParam(param):
   """
   Defines if the kernel parameter param has been defined on the kernel command line or not
@@ -22,6 +23,7 @@ def hasKernelParam(param):
       if param == chunk.split('=', 1)[0]:
         return True
   return False
+
 
 def getKernelParamValue(param):
   """

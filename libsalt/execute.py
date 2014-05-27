@@ -16,7 +16,8 @@ import subprocess
 import sys
 import os
 
-def execCall(cmd, shell = True, env = {'LANG' : 'en_US'}):
+
+def execCall(cmd, shell=True, env={'LANG': 'en_US'}):
   """
   Executes a command and return the exit code.
   The command is executed by default in a /bin/sh shell with en_US locale.
@@ -25,18 +26,20 @@ def execCall(cmd, shell = True, env = {'LANG' : 'en_US'}):
   """
   if shell and isinstance(cmd, list):
     cmd = ' '.join(cmd)
-  return subprocess.call(cmd, shell = shell, env = env)
+  return subprocess.call(cmd, shell=shell, env=env)
 
-def execCheck(cmd, shell = True, env = {'LANG' : 'en_US'}):
+
+def execCheck(cmd, shell=True, env={'LANG': 'en_US'}):
   """
   Executes a command and return 0 if Ok or a subprocess.CalledProcessorError exception in case of error.
   The command is executed by default in a /bin/sh shell with en_US locale.
   """
   if shell and isinstance(cmd, list):
     cmd = ' '.join(cmd)
-  return subprocess.check_call(cmd, shell = shell, env = env)
+  return subprocess.check_call(cmd, shell=shell, env=env)
 
-def execGetOutput(cmd, withError = False, shell = True, env = {'LANG' : 'en_US'}):
+
+def execGetOutput(cmd, withError=False, shell=True, env={'LANG': 'en_US'}):
   """
   Executes a command and return its output in a list, line by line.
   In case of error, it returns a subprocess.CalledProcessorError exception.
@@ -46,10 +49,10 @@ def execGetOutput(cmd, withError = False, shell = True, env = {'LANG' : 'en_US'}
   stdErr = DEVNULL
   if withError:
     stdErr = subprocess.STDOUT
-  if sys.version_info[0] > 2 or (sys.version_info[0] == 2 and sys.version_info[1] >= 7): # ver >= 2.7
+  if sys.version_info[0] > 2 or (sys.version_info[0] == 2 and sys.version_info[1] >= 7):  # ver >= 2.7
     if shell and isinstance(cmd, list):
       cmd = ' '.join(cmd)
-    return subprocess.check_output(cmd, stderr = stdErr, shell = shell, env = env).splitlines()
+    return subprocess.check_output(cmd, stderr=stdErr, shell=shell, env=env).splitlines()
   else:
     wrappedCmd = []
     if shell:
@@ -64,12 +67,13 @@ def execGetOutput(cmd, withError = False, shell = True, env = {'LANG' : 'en_US'}
         wrappedCmd = cmd
       else:
         wrappedCmd.append(cmd)
-    p = subprocess.Popen(wrappedCmd, stdout = subprocess.PIPE, stderr = stdErr)
+    p = subprocess.Popen(wrappedCmd, stdout=subprocess.PIPE, stderr=stdErr)
     output = p.communicate()[0]
     if p.returncode == 0:
       return output.splitlines()
     else:
-      raise subprocess.CalledProcessError(returncode = p.returncode, cmd = cmd)
+      raise subprocess.CalledProcessError(returncode=p.returncode, cmd=cmd)
+
 
 def checkRoot():
   """
@@ -83,7 +87,7 @@ if __name__ == '__main__':
   from .assertPlus import *
   assertEquals(0, execCall("ls"))
   assertEquals(0, execCall("ls -lh | grep '[.]'"))
-  assertEquals(0, execCall("ls", shell = False))
+  assertEquals(0, execCall("ls", shell=False))
   assertEquals(127, execCall("xyz"))
   assertException(subprocess.CalledProcessError, lambda: execCheck("xyz"))
   assertEquals(0, execCheck("ls"))

@@ -1,16 +1,18 @@
 #!/bin/env python
 # coding: utf-8
-# vim: set et sta ai sw=2 sts=2 ts=2 tw=0:
+# vim:et:sta:sw=2:sts=2:ts=2:tw=0:
 
 import os
 import codecs
 import re
 from setuptools import setup, find_packages
 
+
 def read(*paths):
   """Build a file path from *paths* and return the contents."""
   with codecs.EncodedFile(open(os.path.join(*paths), 'rb'), 'utf-8') as f:
     return f.read()
+
 
 def find_version(*file_paths):
   version_file = read(*file_paths)
@@ -28,9 +30,9 @@ setup(
   license='GPLv2+',
   author='Cyrille Pontvieux',
   author_email='jrd@salixos.org',
-  packages=find_packages(exclude = ['tests']),
+  packages=find_packages(exclude=['tests']),
   include_package_data=True,
-  classifiers=[ # https://pypi.python.org/pypi?%3Aaction=list_classifiers
+  classifiers=[  # https://pypi.python.org/pypi?%3Aaction=list_classifiers
     'Development Status :: 4 - Beta',
     'Intended Audience :: Developers',
     'Natural Language :: English',

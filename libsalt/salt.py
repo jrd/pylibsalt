@@ -26,6 +26,7 @@ import subprocess
 from threading import Thread
 from time import sleep
 
+
 def getSaLTVersion():
   """
   Returns the SaLT version if run in a SaLT Live environment
@@ -33,11 +34,13 @@ def getSaLTVersion():
   _checkLive()
   return open('/mnt/salt/salt-version', 'r').read().strip()
 
+
 def isSaLTVersionAtLeast(version):
   """
   Returns True if the SaLT version is at least 'version'.
   """
   v = getSaLTVersion()
+
   def vercmp(v1, v2):
     def _makelist(v):
       lst = [int(x) for x in re.sub(r'[a-z]', '', v.lower()).split('.')]
@@ -47,15 +50,18 @@ def isSaLTVersionAtLeast(version):
     return _makelist(v1).__ge__(_makelist(v2))
   return vercmp(version, v)
 
+
 def isSaLTLiveEnv():
   """
   Returns True if it is executed in a SaLT Live environment, False otherwise
   """
   return os.path.isfile('/mnt/salt/salt-version') and os.path.isfile('/mnt/salt/tmp/distro_infos')
 
+
 def _checkLive():
   if not isSaLTLiveEnv():
     raise Exception('Not in SaLT Live environment.')
+
 
 def isSaLTLiveCloneEnv():
   """
@@ -66,6 +72,7 @@ def isSaLTLiveCloneEnv():
   else:
     moduledir = '{0}/{1}/{2}/modules'.format(getSaLTLiveMountPoint(), getSaLTBaseDir(), getSaLTRootDir())
     return os.path.isfile(moduledir + '/01-clone.salt')
+
 
 def getSaLTLiveMountPoint():
   """
@@ -80,6 +87,7 @@ def getSaLTLiveMountPoint():
     ret = None
   return "/mnt/salt{0}".format(ret)
 
+
 def getSaLTRootDir():
   """
   Returns the SaLT ROOT_DIR, which is the directory containing SaLT modules.
@@ -93,6 +101,7 @@ def getSaLTRootDir():
       break
   return ret
 
+
 def getSaLTIdentFile():
   """
   Returns the SaLT IDENT_FILE, which is the file located at the root of a filesystem containing some SaLT information for this Live session.
@@ -105,6 +114,7 @@ def getSaLTIdentFile():
       ret = line.split('=', 1)[1]
       break
   return ret
+
 
 def getSaLTBaseDir():
   """
@@ -120,9 +130,10 @@ def getSaLTBaseDir():
       if line.startswith('basedir='):
         ret = line.split('=', 1)[1]
         break
-  if ret != None and len(ret) == 0:
-    ret = '.' # for not having empty path. GNU is ok having a path like a/b//c/d but it's preferable to have a/b/./c/d if possible
+  if ret is not None and len(ret) == 0:
+    ret = '.'  # for not having empty path. GNU is ok having a path like a/b//c/d but it's preferable to have a/b/./c/d if possible
   return ret
+
 
 def listSaLTModules():
   """
@@ -132,13 +143,15 @@ def listSaLTModules():
   moduledir = '{0}/{1}/{2}/modules'.format(getSaLTLiveMountPoint(), getSaLTBaseDir(), getSaLTRootDir())
   return sorted(map(lambda(x): re.sub(r'.*/([^/]+).salt$', r'\1', x), glob.glob('{0}/*.salt'.format(moduledir))))
 
+
 def getSaLTModulePath(moduleName):
   """
   Get the module full path.
   """
   return '/mnt/salt/mnt/modules/{0}'.format(moduleName)
 
-def installSaLTModule(moduleName, moduleSize, targetMountPoint, callback, callback_args = (), interval = 10, completeCallback = None):
+
+def installSaLTModule(moduleName, moduleSize, targetMountPoint, callback, callback_args=(), interval = 10, completeCallback = None):
   """
   Install the module 'moduleName' from this Live session into the targetMountPoint.
   'moduleSize' is the uncompressed size of the module expressed in bytes.
@@ -151,18 +164,23 @@ def installSaLTModule(moduleName, moduleSize, targetMountPoint, callback, callba
     raise IOError("The module '{0}' does not exists".format(moduleName))
   if not os.path.isdir(targetMountPoint):
     raise IOError("The target mount point '{0}' does not exists".format(targetMountPoint))
+
   def get_used_size(p):
     return getSizes(p, False)['used']
+
   class ExecCopyTask:
     def _run(self, *args, **kwargs):
       cmd = args[0]
       self._p = subprocess.Popen(cmd)
       self._p.wait()
+
     def start(self, cmd):
       self._t = Thread(target=self._run, args=(cmd,))
       self._t.start()
+
     def is_running(self):
       return self._t and self._t.is_alive()
+
     def stop(self):
       if self._p:
         self._p.kill()
@@ -179,7 +197,7 @@ def installSaLTModule(moduleName, moduleSize, targetMountPoint, callback, callba
     if t.is_running():
       actual_size = get_used_size(targetMountPoint)
       diff_size = float(actual_size - init_size)
-      if diff_size < 0: # is this possible?
+      if diff_size < 0:  # is this possible?
         diff_size = 0
       p = diff_size / moduleSize
       if p > 1:

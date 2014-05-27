@@ -21,62 +21,67 @@ import glob
 import re
 from shutil import copyfile
 
-def listTimeZones(mountPoint = None):
+
+def listTimeZones(mountPoint=None):
   """
   Returns a dictionary of time zones, by continent.
   """
   if mountPoint and not os.path.isdir(mountPoint):
     raise IOError("'{0}' does not exist or is not a directory.".format(mountPoint))
-  if mountPoint == None:
+  if mountPoint is None:
     mountPoint = ''
   tz = {}
   for z in listTZContinents(mountPoint):
     tz[z] = listTZCities(z, mountPoint)
   return tz
 
-def listTZContinents(mountPoint = None):
+
+def listTZContinents(mountPoint=None):
   """
   Returns a sorted list of continents for time zones.
   """
   if mountPoint and not os.path.isdir(mountPoint):
     raise IOError("'{0}' does not exist or is not a directory.".format(mountPoint))
-  if mountPoint == None:
+  if mountPoint is None:
     mountPoint = ''
   return sorted(map(os.path.basename, filter(lambda f: os.path.isdir(f), glob.glob('{0}/usr/share/zoneinfo/[A-Z]*'.format(mountPoint)))))
 
-def listTZCities(continent, mountPoint = None):
+
+def listTZCities(continent, mountPoint=None):
   """
   Returns a sorted list of cities for a specific continent's time zone.
   """
   if mountPoint and not os.path.isdir(mountPoint):
     raise IOError("'{0}' does not exist or is not a directory.".format(mountPoint))
-  if mountPoint == None:
+  if mountPoint is None:
     mountPoint = ''
   if os.path.isdir('{0}/usr/share/zoneinfo/{1}'.format(mountPoint, continent)):
     return sorted(map(os.path.basename, glob.glob('{0}/usr/share/zoneinfo/{1}/*'.format(mountPoint, continent))))
   else:
     return None
 
-def getDefaultTimeZone(mountPoint = None):
+
+def getDefaultTimeZone(mountPoint=None):
   """
   Returns the default time zone, by reading the /etc/localtime-copied-from symlink.
   """
   if mountPoint and not os.path.isdir(mountPoint):
     raise IOError("'{0}' does not exist or is not a directory.".format(mountPoint))
-  if mountPoint == None:
+  if mountPoint is None:
     mountPoint = ''
   tz = None
   if os.path.islink('{0}/etc/localtime-copied-from'.format(mountPoint)):
     tz = re.sub(r'/usr/share/zoneinfo/', '', os.readlink('{0}/etc/localtime-copied-from'.format(mountPoint)))
   return tz
 
-def setDefaultTimeZone(timezone, mountPoint = None):
+
+def setDefaultTimeZone(timezone, mountPoint=None):
   """
   Set the default time zone, by copying the correct time zone to /etc/localtime and by setting the /etc/localtime-copied-from symlink.
   """
   if mountPoint and not os.path.isdir(mountPoint):
     raise IOError("'{0}' does not exist or is not a directory.".format(mountPoint))
-  if mountPoint == None:
+  if mountPoint is None:
     mountPoint = ''
   checkRoot()
   if '/' in timezone and len(timezone.split('/')) == 2 and os.path.isfile('{0}/usr/share/zoneinfo/{1}'.format(mountPoint, timezone)):
@@ -87,25 +92,27 @@ def setDefaultTimeZone(timezone, mountPoint = None):
   else:
     raise Exception('This time zone: ({0}), is incorrect.'.format(timezone))
 
-def isNTPEnabledByDefault(mountPoint = None):
+
+def isNTPEnabledByDefault(mountPoint=None):
   """
   ReturnsTrue if the NTP service is enabled by default.
   To do this, the execute bit of /etc/rc.d/rc.ntpd is checked.
   """
   if mountPoint and not os.path.isdir(mountPoint):
     raise IOError("'{0}' does not exist or is not a directory.".format(mountPoint))
-  if mountPoint == None:
+  if mountPoint is None:
     mountPoint = ''
   return os.access('{0}/etc/rc.d/rc.ntpd'.format(mountPoint), os.X_OK)
 
-def setNTPDefault(enabled, mountPoint = None):
+
+def setNTPDefault(enabled, mountPoint=None):
   """
   Fix the configuration for the default NTP service to be activated on boot or not.
   """
   checkRoot()
   if mountPoint and not os.path.isdir(mountPoint):
     raise IOError("'{0}' does not exist or is not a directory.".format(mountPoint))
-  if mountPoint == None:
+  if mountPoint is None:
     mountPoint = '/'
   if enabled:
     os.chmod('{0}/etc/rc.d/rc.ntpd'.format(mountPoint), 0755)
