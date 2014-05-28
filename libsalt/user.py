@@ -133,25 +133,3 @@ def deleteSystemUser(user, mountPoint=None):
     return execCall(cmd, shell=False)
   else:
     return execChroot(mountPoint, cmd)
-
-# Unit test
-if __name__ == '__main__':
-  from .assertPlus import *
-  checkRoot()
-  users = listRegularSystemUsers()
-  print(' '.join(users))
-  assertTrue(len(users) > 0)
-  testUser = '__test__'
-  assertEquals(0, createSystemUser(testUser, password='test'))
-  assertTrue(testUser in listRegularSystemUsers())
-  assertTrue(checkPasswordSystemUser(testUser, 'test', mountPoint='/'))
-  assertFalse(checkPasswordSystemUser(testUser, 'test2'))
-  assertEquals(0, deleteSystemUser(testUser))
-  assertFalse(testUser in listRegularSystemUsers())
-  assertEquals(0, createSystemUser(testUser, mountPoint='/./'))  # to be different than '/' and to really force the chroot ;-)
-  assertTrue(testUser in listRegularSystemUsers())
-  assertEquals(0, changePasswordSystemUser(testUser, 'test'))
-  assertTrue(checkPasswordSystemUser(testUser, 'test'))
-  assertFalse(checkPasswordSystemUser(testUser, 'test3'))
-  assertEquals(0, deleteSystemUser(testUser, mountPoint='/./'))
-  assertFalse(testUser in listRegularSystemUsers())
