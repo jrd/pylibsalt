@@ -255,30 +255,3 @@ def _makeSwap(path, label, options, force):
   cmd.extend(options)
   cmd.append(path)
   return execCall(cmd, shell=False)
-
-# Unit test
-if __name__ == '__main__':
-  from .assertPlus import *
-  part = 'sda1'
-  fstype = getFsType(part)
-  label = getFsLabel(part)
-  print('{0}: {1} ({2})'.format(part, fstype, label))
-  assertTrue(fstype)
-  assertTrue(len(fstype) > 0)
-  assertTrue(label)
-  assertTrue(len(label) > 0)
-  for ft in ('ext2', 'ext4', 'xfs', 'reiserfs', 'jfs', 'btrfs', 'ntfs', 'fat16', 'fat32', 'swap'):
-    f = '{0}.fs'.format(ft)
-    if ft == 'btrfs':
-      size = 300  # btrfs minimum size is 256M
-    else:
-      size = 50
-    execCall(['dd', 'if=/dev/zero', 'of={0}'.format(f), 'bs=1M', 'count={0:d}'.format(size)], shell=False)
-    assertEquals(0, makeFs(f, ft, 'test_{0}'.format(ft), True))
-    if ft in ('fat16', 'fat32'):
-      expectedFt = 'vfat'
-    else:
-      expectedFt = ft
-    assertEquals(expectedFt, getFsType(f))
-    assertEquals('test_{0}'.format(ft), getFsLabel(f))
-    os.unlink(f)
