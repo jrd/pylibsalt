@@ -36,11 +36,3 @@ def execChroot(path, cmd, shell=False):
     else:
       chrootCmd.append(cmd)
   return execCall(chrootCmd, shell=False)
-
-# Unit test
-if __name__ == '__main__':
-  from .assertPlus import *
-  assertException(IOError, lambda: execChroot(None, '/bin/ls'))
-  assertException(IOError, lambda: execChroot('/nonExistant', '/bin/ls'))
-  assertEquals(0, execChroot('/', '/bin/ls'))
-  assertEquals(0, execChroot('/', "/bin/ls | grep '.' && echo '** chroot ok **'", shell=True))

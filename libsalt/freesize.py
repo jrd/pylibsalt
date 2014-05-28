@@ -83,6 +83,8 @@ def getSizes(path, withHuman=True):
     else:
       # not mounted, so only the full size could be get
       diskDevice = re.sub(r'^.*/([^/]+?)[0-9]*$', r'\1', path)
+      if re.match(r'^.+[0-9]p$', diskDevice):
+        diskDevice = diskDevice[:-1]
       device = re.sub(r'^.*/([^/]+)$', r'\1', path)
       blockSize = int(open('/sys/block/{0}/queue/logical_block_size'.format(diskDevice), 'r').read().strip())
       size = int(open('/sys/class/block/{0}/size'.format(device), 'r').read().strip()) * blockSize
@@ -137,43 +139,3 @@ def getUsedSize(path, blocksize=None, withHuman=True):
     return {'size': size, 'sizeHuman': getHumanSize(size)}
   else:
     return {'size': size, 'sizeHuman': None}
-
-# Unit test
-if __name__ == '__main__':
-  from .assertPlus import *
-  assertEquals('7.4GB', getHumanSize(7923593216L))
-  print('/')
-  stats = getSizes('/')
-  print(stats)
-  assertTrue(stats['size'] > 0)
-  assertTrue(stats['free'] > 0)
-  assertTrue(stats['uuFree'] > 0)
-  assertTrue(stats['used'] > 0)
-  assertTrue(stats['uuUsed'] > 0)
-  print('/dev/sda1')
-  stats = getSizes('/dev/sda1')  # mounted
-  print(stats)
-  assertTrue(stats['size'] > 0)
-  assertTrue(stats['size'] > 0)
-  assertTrue(stats['free'] > 0)
-  assertTrue(stats['uuFree'] > 0)
-  assertTrue(stats['used'] > 0)
-  assertTrue(stats['uuUsed'] > 0)
-  print('/dev/sda2')
-  stats = getSizes('/dev/sda2')  # extended partition, could never have been mounted
-  print(stats)
-  assertTrue(stats['size'] > 0)
-  assertTrue(stats['size'] > 0)
-  assertTrue(stats['free'] is None)
-  assertTrue(stats['uuFree'] is None)
-  assertTrue(stats['used'] is None)
-  assertTrue(stats['uuUsed'] is None)
-  print('getUsedSize(.)')
-  stats1 = getUsedSize('.')
-  print(stats1)
-  assertTrue(stats1['size'] > 0)
-  print('getUsedSize(., 524288)')
-  stats2 = getUsedSize('.', 524288)
-  print(stats2)
-  assertTrue(stats2['size'] > 0)
-  assertTrue(stats2['size'] > stats1['size'])

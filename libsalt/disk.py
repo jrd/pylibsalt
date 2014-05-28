@@ -51,7 +51,10 @@ def getDiskInfo(diskDevice):
   diskDevice should no be prefixed with '/dev/'
   """
   if S_ISBLK(os.stat('/dev/{0}'.format(diskDevice)).st_mode):
-    modelName = open('/sys/block/{0}/device/model'.format(diskDevice), 'r').read().strip()
+    if os.path.exists('/sys/block/{0}/device/model'.format(diskDevice)):
+      modelName = open('/sys/block/{0}/device/model'.format(diskDevice), 'r').read().strip()
+    else:
+      modelName = None
     blockSize = int(open('/sys/block/{0}/queue/logical_block_size'.format(diskDevice), 'r').read().strip())
     size = int(open('/sys/block/{0}/size'.format(diskDevice), 'r').read().strip()) * blockSize
     sizeHuman = getHumanSize(size)
@@ -84,12 +87,12 @@ def getPartitions(diskDevice, skipExtended=True, skipSwap=True):
     return None
 
 
-def getSwapPartitions():
+def getSwapPartitions(devices=getDisks()):
   """
   Returns partition devices with Linux Swap type.
   """
   ret = []
-  for diskDevice in getDisks():
+  for diskDevice in devices:
     parts = [p.replace('/sys/block/{0}/'.format(diskDevice), '') for p in glob.glob('/sys/block/{0}/{0}*'.format(diskDevice))]
     ret.extend([part for part in parts if getFsType(part) == 'swap'])
   return ret
@@ -108,7 +111,9 @@ def getPartitionInfo(partitionDevice):
   if S_ISBLK(os.stat('/dev/{0}'.format(partitionDevice)).st_mode):
     fstype = getFsType(partitionDevice)
     label = getFsLabel(partitionDevice)
-    diskDevice = re.sub('[0-9]*', '', partitionDevice)
+    diskDevice = re.sub(r'[0-9]*$', '', partitionDevice)
+    if re.match(r'^.+[0-9]p$', diskDevice):
+      diskDevice = diskDevice[:-1]
     blockSize = int(open('/sys/block/{0}/queue/logical_block_size'.format(diskDevice), 'r').read().strip())
     size = int(open('/sys/block/{0}/{1}/size'.format(diskDevice, partitionDevice), 'r').read().strip()) * blockSize
     sizeHuman = getHumanSize(size)
@@ -120,23 +125,3 @@ def getPartitionInfo(partitionDevice):
     return {'fstype': fstype, 'label': label, 'size': size, 'sizeHuman': sizeHuman, 'partId': partId}
   else:
     return None
-
-# Unit test
-if __name__ == '__main__':
-  from .assertPlus import *
-  checkRoot()
-  disks = getDisks()
-  assertTrue(len(disks) > 0)
-  assertEquals('sda', disks[0])
-  diskInfo = getDiskInfo('sda')
-  assertTrue(diskInfo['model'] != '')
-  assertTrue(diskInfo['size'] > 0)
-  assertTrue('B' in diskInfo['sizeHuman'])
-  assertFalse(diskInfo['removable'])
-  assertTrue(len(getPartitions('sda')) > 0)
-  assertTrue(len(getSwapPartitions()) > 0)
-  partInfo = getPartitionInfo('sda1')
-  assertTrue(partInfo['fstype'] != '')
-  assertTrue(partInfo['label'] != '')
-  assertTrue(partInfo['size'] > 0)
-  assertTrue('B' in partInfo['sizeHuman'])

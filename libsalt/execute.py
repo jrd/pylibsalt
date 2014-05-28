@@ -81,15 +81,3 @@ def checkRoot():
   """
   if os.getuid() != 0:
     raise Exception('You need root permissions.')
-
-# Unit test
-if __name__ == '__main__':
-  from .assertPlus import *
-  assertEquals(0, execCall("ls"))
-  assertEquals(0, execCall("ls -lh | grep '[.]'"))
-  assertEquals(0, execCall("ls", shell=False))
-  assertEquals(127, execCall("xyz"))
-  assertException(subprocess.CalledProcessError, lambda: execCheck("xyz"))
-  assertEquals(0, execCheck("ls"))
-  assertEquals(os.getcwd(), execGetOutput("pwd")[0].strip())
-  assertException(Exception, lambda: checkRoot())
