@@ -177,29 +177,3 @@ def setIbusDefault(enabled, mountPoint=None):
     cmd.append('off')
   cmd.append('-z')  # must be last option because of a bug in keyboardsetup
   return execChroot(mountPoint, cmd)
-
-# Unit test
-if __name__ == '__main__':
-  from .assertPlus import *
-  checkRoot()
-  keymaps = listAvailableKeymaps()
-  assertTrue(type(keymaps) == list)
-  assertTrue(len(keymaps) > 0)
-  keymaps = dict(keymaps)  # change it to dictionnary
-  assertEquals('azerty', keymaps['fr-latin9'])
-  keymap = findCurrentKeymap()
-  assertTrue(keymap)
-  numlock = isNumLockEnabledByDefault()
-  assertTrue(type(numlock) == bool)
-  ibus = isIbusEnabledByDefault()
-  assertTrue(type(ibus) == bool)
-  assertEquals(0, setDefaultKeymap('fr-latin1'))
-  assertEquals('fr-latin1', findCurrentKeymap())
-  assertEquals(0, setNumLockDefault(True))
-  assertTrue(isNumLockEnabledByDefault())
-  assertEquals(0, setIbusDefault(True))
-  assertTrue(isIbusEnabledByDefault())
-  # restore actual keyboard parameters
-  setDefaultKeymap(keymap)
-  setNumLockDefault(numlock)
-  setIbusDefault(ibus)
