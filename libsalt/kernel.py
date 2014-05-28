@@ -39,14 +39,3 @@ def getKernelParamValue(param):
         else:
           return None
   return False
-
-# Unit test
-if __name__ == '__main__':
-  from .assertPlus import *
-  # it is supposed that the /proc/cmdline always have "ro" and "root=XXX" parameters.
-  assertTrue(hasKernelParam('ro'))
-  assertTrue(hasKernelParam('root'))
-  assertFalse(hasKernelParam('nonexistant'))
-  assertNotEquals('', getKernelParamValue('root'))
-  assertEquals(None, getKernelParamValue('ro'))
-  assertEquals(False, getKernelParamValue('nonexistant'))
