@@ -115,18 +115,3 @@ def umountDevice(deviceOrPath, tryLazyUmount=True, deleteMountPoint=True):
     return ret == 0
   else:
     return False
-
-# Unit test
-if __name__ == '__main__':
-  from .assertPlus import *
-  from .fs import *
-  checkRoot()  # need to be root to mount/umount
-  execCall(['dd', 'if=/dev/zero', 'of=ext4.fs', 'bs=1M', 'count=50'], shell=False)
-  makeFs('ext4.fs', 'ext4', 'test ext4', True)
-  assertFalse(isMounted('ext4.fs'))
-  assertEquals(0, mountDevice('ext4.fs'))
-  assertTrue(isMounted('ext4.fs'))
-  assertEquals('{0}/ext4.fs'.format(_tempMountDir), getMountPoint('ext4.fs'))
-  assertEquals(0, umountDevice('ext4.fs'))
-  assertFalse(isMounted('ext4.fs'))
-  os.unlink('ext4.fs')
