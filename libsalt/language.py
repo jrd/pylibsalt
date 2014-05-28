@@ -86,22 +86,3 @@ def setDefaultLocale(locale, mountPoint=None):
   for line in fi:
     sys.stdout.write(re.sub(r'^(setenv LANG ).*', r'\1{0}'.format(locale), line))
   fi.close()
-
-# Unit test
-if __name__ == '__main__':
-  from .assertPlus import *
-  checkRoot()
-  locales = listAvailableLocales()
-  assertTrue(type(locales) == list)
-  assertTrue(len(locales) > 0)
-  assertTrue('fr_FR' in dict(locales))
-  curlocale = getCurrentLocale()
-  assertTrue(len(curlocale) > 3)
-  assertTrue('.utf8' in locale)
-  deflocale = getDefaultLocale()
-  assertTrue(len(deflocale) > 3)
-  assertTrue('.utf8' in deflocale)
-  setDefaultLocale('zu_ZA.utf8')
-  locale = getDefaultLocale()
-  assertEquals('zu_ZA.utf8', locale)
-  setDefaultLocale(deflocale)
