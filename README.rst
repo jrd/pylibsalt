@@ -13,7 +13,18 @@ __ LICENSE
 Features
 --------
 
-*TODO*
+- chroot function
+- execute functions (checkRoot execCall execCheck execGetOutput)
+- disk functions (getDiskInfo getDisks getPartitionInfo getPartitions getSwapPartitions)
+- filesystem functions (getFsLabel getFsType makeFs)
+- freesize functions (getBlockSize getHumanSize getSizes getUsedSize)
+- fstab functions (addFsTabEntry createFsTab)
+- kernel parameters functions (getKernelParamValue hasKernelParam)
+- mounting functions (getMountPoint getTempMountDir isMounted mountDevice umountDevice)
+- system users functions (changePasswordSystemUser checkPasswordSystemUser createSystemUser deleteSystemUser listRegularSystemUsers)
+- timezone functions (getDefaultTimeZone isNTPEnabledByDefault listTZCities listTZContinents listTimeZones setDefaultTimeZone setNTPDefault)
+- languages functions (getCurrentLocale getDefaultLocale listAvailableLocales setDefaultLocale)
+- keyboards functions (findCurrentKeymap isIbusEnabledByDefault isNumLockEnabledByDefault listAvailableKeymaps setDefaultKeymap setIbusDefault setNumLockDefault)
 
 .. _`Salix Live Installer`: https://github.com/Salix-OS/salix-live-installer
 .. _Bootsetup: https://github.com/jrd/bootsetup
