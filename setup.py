@@ -21,18 +21,20 @@ def find_version(*file_paths):
     return version_match.group(1)
   raise RuntimeError("Unable to find version string.")
 
-setup(
-  name='pylibsalt',
-  version=find_version('libsalt', '__init__.py'),
-  description='SaLT python library.',
-  long_description=read('README.rst'),
-  url='http://github.com/jrd/pylibsalt/',
-  license='GPLv2+',
-  author='Cyrille Pontvieux',
-  author_email='jrd@salixos.org',
-  packages=find_packages(exclude=['tests']),
-  include_package_data=True,
-  classifiers=[  # https://pypi.python.org/pypi?%3Aaction=list_classifiers
+config = {
+  'name': 'pylibsalt',
+  'description': 'SaLT python library.',
+  'long_description': read('README.rst'),
+  'license': 'GPLv2+',
+  'author': 'Cyrille Pontvieux',
+  'author_email': 'jrd@salixos.org',
+  'version': find_version('libsalt', '__init__.py'),
+  'url': 'https://github.com/jrd/pylibsalt/',
+  'download_url': 'https://github.com/jrd/pylibsalt/archive/master.zip',
+  'packages': find_packages(exclude=['tests']),
+  'include_package_data': True,
+  'test_suite': 'tests',
+  'classifiers': [  # https://pypi.python.org/pypi?%3Aaction=list_classifiers
     'Development Status :: 4 - Beta',
     'Intended Audience :: Developers',
     'Natural Language :: English',
@@ -45,5 +47,5 @@ setup(
     'Programming Language :: Python :: 3.3',
     'Topic :: Software Development :: Libraries :: Python Modules',
   ],
-  test_suite='tests',
-)
+}
+setup(**config)
