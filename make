@@ -19,7 +19,7 @@ Usage: make ACTION
 ACTION:
   clean: clean the mess
   build: create a .whl (python wheel) file
-  install [local]: install the wheel file, eventually localy
+  install [global]: install the wheel file, eventually globaly
   info: information about pylibsalt, if installed
 """)
 
@@ -28,23 +28,28 @@ def clean():
   shutil.rmtree('wheelhouse', True)
 
 
+def pip_run(*args):
+  pip.main(list(args))
+  pip.logger.consumers = []
+
+
 def build():
-  clean
-  pip.main(['wheel', '.'])
+  clean()
+  pip_run('wheel', '.')
 
 
 def install(local=True):
-  build
+  build()
   wheel_file = glob('wheelhouse/*.whl')[0]
   if local:
-    pip.main(['install', '--user', wheel_file])
+    pip_run('install', '--user', wheel_file)
   else:
-    pip.main(['install', wheel_file])
+    pip_run('install', wheel_file)
 
 
 def info():
-  if [d.key for d in pip_get_installed() if d.key == 'pulibsalt']:
-    pip.main(['show', 'pylibsalt'])
+  if [d.key for d in pip_get_installed() if d.key == 'pylibsalt']:
+    pip_run('show', 'pylibsalt')
   else:
     print("pylibsalt not installed, try ./make install or ./make install local", file=sys.stderr)
     sys.exit(1)
@@ -63,11 +68,11 @@ while args:
   elif arg == 'build':
     build()
   elif arg == 'install':
-    if args and args[0] == 'local':
+    if args and args[0] == 'global':
       args = args[1:]
-      install(True)
-    else:
       install(False)
+    else:
+      install()
   elif arg == 'info':
     info()
   else:
