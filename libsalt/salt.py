@@ -16,8 +16,6 @@ SaLT functions:
 """
 from __future__ import print_function, unicode_literals, absolute_import
 
-__copyright__ = 'Copyright 2011-2013, Salix OS'
-__license__ = 'GPL2+'
 from .freesize import *
 import os
 import glob
