@@ -1,0 +1,5 @@
+1.0.0 (XXXX-XX-XX)
+  Pip/Wheel release scheme
+  Real unit testing
+  Checks that a disk device is a block device and not only present in /dev.
+  Lots of erros fixed

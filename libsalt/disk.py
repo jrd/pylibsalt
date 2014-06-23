@@ -48,7 +48,7 @@ def getDiskInfo(diskDevice):
     - type: either 'msdos' or 'gpt' if parted is installed, or None if not.
   diskDevice should no be prefixed with '/dev/'
   """
-  if S_ISBLK(os.stat('/dev/{0}'.format(diskDevice)).st_mode):
+  if S_ISBLK(os.stat('/dev/{0}'.format(diskDevice)).st_mode) and os.path.exists('/sys/block/{0}'.format(diskDevice)):
     if os.path.exists('/sys/block/{0}/device/model'.format(diskDevice)):
       modelName = open('/sys/block/{0}/device/model'.format(diskDevice), 'r').read().strip()
     else:
@@ -73,7 +73,7 @@ def getPartitions(diskDevice, skipExtended=True, skipSwap=True):
   """
   Returns partitions matching exclusion filters.
   """
-  if S_ISBLK(os.stat('/dev/{0}'.format(diskDevice)).st_mode):
+  if S_ISBLK(os.stat('/dev/{0}'.format(diskDevice)).st_mode) and os.path.exists('/sys/block/{0}'.format(diskDevice)):
     parts = [p.replace('/sys/block/{0}/'.format(diskDevice), '') for p in glob.glob('/sys/block/{0}/{0}*'.format(diskDevice))]
     fsexclude = [False]
     if skipExtended:
