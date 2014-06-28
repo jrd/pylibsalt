@@ -44,8 +44,12 @@ def getFsType(partitionDevice):
     if not fstype:
       # is it a real error or is it an extended partition?
       try:
-        filetype = execGetOutput(['/usr/bin/file', '-s', path], shell=False)
-        if 'extended partition table' in filetype:
+        devPath = path[:-1]
+        parts = execGetOutput(['/sbin/fdisk', '-l', devPath], shell=False)
+        for line in parts:
+          if path in line:
+            filetype = line
+        if 'Extended' in filetype:
           fstype = 'Extended'
       except subprocess.CalledProcessError:
         pass
