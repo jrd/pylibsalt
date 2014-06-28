@@ -50,7 +50,7 @@ def getFsType(partitionDevice):
         while devpath[-1] in '0123456789':
           devpath = devpath[:-1]
         parts = execGetOutput(['/sbin/fdisk', '-l', devpath], shell=False)
-        for line in parts:
+        for line in parts: # find right partition
           if path in line:
             filetype = line
         if 'Extended' in filetype:
@@ -121,7 +121,7 @@ def makeFs(partitionDevice, fsType, label=None, force=False, options=None):
     return _makeSwap(path, label, options, force)
   return None  # should not append
 
-
+  
 def _makeExtFs(path, version, label, options, force):
   """
   ExtX block size: 4k per default in /etc/mke2fs.conf
