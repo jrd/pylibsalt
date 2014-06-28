@@ -41,11 +41,15 @@ def getFsType(partitionDevice):
         fstype = False
     except subprocess.CalledProcessError:
       fstype = False
-    if not fstype:
+    if not fstype and not os.path.isfile(path):
       # is it a real error or is it an extended partition?
+      # only check if block device rather than partition in file
       try:
-        devPath = path[:-1]
-        parts = execGetOutput(['/sbin/fdisk', '-l', devPath], shell=False)
+        devpath = path
+        # strip trailing numbers to leave device
+        while devpath[-1] in '0123456789':
+          devpath = devpath[:-1]
+        parts = execGetOutput(['/sbin/fdisk', '-l', devpath], shell=False)
         for line in parts:
           if path in line:
             filetype = line
