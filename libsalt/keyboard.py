@@ -88,7 +88,7 @@ def listAvailableKeymaps(mountPoint=None):
       keyboardType = '-'
       typePosition = 6  # usr/share/kbd/keymaps/i386/azerty => 6
       if mountPoint:
-        typePosition += len(mountPoint.spli('/') - 1)
+        typePosition += len(mountPoint.split('/')) - 1
       kmPath = glob.glob('{0}/usr/share/kbd/keymaps/*/*/{1}.map.gz'.format(mountPoint, keymap))
       if kmPath:
         keyboardType = kmPath[0].split('/')[typePosition]
