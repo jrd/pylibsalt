@@ -45,23 +45,18 @@ def getFsType(partitionDevice):
     if not fstype and not os.path.isfile(path):
       # is it a real error or is it an extended partition?
       # only check if block device rather than partition in file
-      try:
-        devpath, partNum = path, ''
-        # split into block device and partition
-        while devpath[-1] in '0123456789':
-          partNum = devpath[-1] + partNum # will this work for GPT? 
-          devpath = devpath[:-1]
-        device = open(devpath, 'rb')
+      devpath, partNum = path, ''
+      # split into block device and partition
+      while devpath[-1] in '0123456789':
+        partNum = devpath[-1] + partNum
+        devpath = devpath[:-1]
+      with open(devpath, 'rb') as device:
         parts = pyrp.get_disk_partitions_info(device)
-        if parts.mbr != None:
+        if parts.mbr is not None:
           for part in parts.mbr.partitions:
             if 'Extended' in part[-1]:
-              if str(part.index) == partNum: 
+              if str(part.index) == partNum:
                 fstype = 'Extended'
-          # we don't need to check for extended partition in GPT, do we?
-          device.close()
-      except subprocess.CalledProcessError:
-        pass
   return fstype
 
 
