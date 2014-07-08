@@ -24,6 +24,7 @@ import glob
 import re
 import os
 from stat import *
+import pyreadpartitions as pyrp
 
 
 def getDisks():
@@ -45,7 +46,7 @@ def getDiskInfo(diskDevice):
     - size: size in bytes
     - sizeHuman: human readable size
     - removable: whether it is removable or not
-    - type: either 'msdos' or 'gpt' if parted is installed, or None if not.
+    - type: either 'msdos' or 'gpt'.
   diskDevice should no be prefixed with '/dev/'
   """
   if S_ISBLK(os.stat('/dev/{0}'.format(diskDevice)).st_mode) and os.path.exists('/sys/block/{0}'.format(diskDevice)):
@@ -60,10 +61,14 @@ def getDiskInfo(diskDevice):
       removable = int(open('/sys/block/{0}/removable'.format(diskDevice), 'r').read().strip()) == 1
     except:
       removable = False
-    try:
-      partType = execGetOutput("/usr/sbin/parted -m -s /dev/{0} print|sed -n '2p'|cut -d: -f6".format(diskDevice), shell=True)[0]
-    except:
-      partType = None
+    with open('/dev/{0}'.format(diskDevice), 'rb') as f:
+      parts = pyrp.get_disk_partitions_info(f)
+      if parts.mbr is not None:
+        partType = 'msdos'
+      elif parts.gpt is not None:
+        partType = 'gpt'
+      else:
+        partType = None
     return {'model': modelName, 'size': size, 'sizeHuman': sizeHuman, 'removable': removable, 'type': partType}
   else:
     return None
