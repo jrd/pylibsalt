@@ -16,6 +16,7 @@ from .execute import *
 from .freesize import getSizes
 import os
 from stat import *
+import pyreadpartitions as pyrp
 
 
 def getFsType(partitionDevice):
@@ -41,12 +42,24 @@ def getFsType(partitionDevice):
         fstype = False
     except subprocess.CalledProcessError:
       fstype = False
-    if not fstype:
+    if not fstype and not os.path.isfile(path):
       # is it a real error or is it an extended partition?
+      # only check if block device rather than partition in file
       try:
-        filetype = execGetOutput(['/usr/bin/file', '-s', path], shell=False)
-        if 'extended partition table' in filetype:
-          fstype = 'Extended'
+        devpath, partNum = path, ''
+        # split into block device and partition
+        while devpath[-1] in '0123456789':
+          partNum = devpath[-1] + partNum # will this work for GPT? 
+          devpath = devpath[:-1]
+        device = open(devpath, 'rb')
+        parts = pyrp.get_disk_partitions_info(device)
+        if parts.mbr != None:
+          for part in parts.mbr.partitions:
+            if 'Extended' in part[-1]:
+              if str(part.index) == partNum: 
+                fstype = 'Extended'
+          # we don't need to check for extended partition in GPT, do we?
+          device.close()
       except subprocess.CalledProcessError:
         pass
   return fstype
@@ -113,7 +126,7 @@ def makeFs(partitionDevice, fsType, label=None, force=False, options=None):
     return _makeSwap(path, label, options, force)
   return None  # should not append
 
-
+  
 def _makeExtFs(path, version, label, options, force):
   """
   ExtX block size: 4k per default in /etc/mke2fs.conf
