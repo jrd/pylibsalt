@@ -24,7 +24,8 @@ class TestFs(unittest.TestCase):
     for f in glob('*.fs'):
       os.unlink(f)
 
-  def test_fs(self):
+  @unittest.skipUnless(os.getuid() == 0, "root required")
+  def test_fs_device(self):
     part = 'sda1'
     fstype = fs.getFsType(part)
     label = fs.getFsLabel(part)
@@ -32,6 +33,8 @@ class TestFs(unittest.TestCase):
     self.assertGreater(len(fstype), 0)
     self.assertTrue(label)
     self.assertGreater(len(label), 0)
+
+  def test_fs_file(self):
     for ft in ('ext2', 'ext4', 'xfs', 'reiserfs', 'jfs', 'btrfs', 'ntfs', 'fat16', 'fat32', 'swap'):
       f = '{0}.fs'.format(ft)
       self.assertEqual(fs.makeFs(f, ft, 'test_{0}'.format(ft), True), 0)

@@ -15,6 +15,7 @@ from __future__ import print_function, unicode_literals, absolute_import
 from .execute import *
 from .freesize import getSizes
 import os
+import re
 from stat import *
 import pyreadpartitions as pyrp
 
@@ -45,11 +46,12 @@ def getFsType(partitionDevice):
     if not fstype and not os.path.isfile(path):
       # is it a real error or is it an extended partition?
       # only check if block device rather than partition in file
-      devpath, partNum = path, ''
+      m = re.match(r'^(.*/[^/]+?)([0-9]+)$', path)
       # split into block device and partition
-      while devpath[-1] in '0123456789':
-        partNum = devpath[-1] + partNum
-        devpath = devpath[:-1]
+      devpath = m.group(1)
+      partNum = m.group(2)
+      if re.match(r'^.+[0-9]p$', devpath):
+        devpath = devpath[:-1]  # case when using loop device with partitions
       with open(devpath, 'rb') as device:
         parts = pyrp.get_disk_partitions_info(device)
         if parts.mbr is not None:
